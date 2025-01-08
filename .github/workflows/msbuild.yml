@@ -2,9 +2,9 @@ name: MSBuild
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "action" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "action" ]
 
 env:
   SOLUTION_FILE_PATH: MenuTools.sln
