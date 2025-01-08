@@ -1,0 +1,46 @@
+name: MSBuild
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+env:
+  SOLUTION_FILE_PATH: MenuTools.sln
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Restore NuGet packages
+        run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+      - name: Build
+        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:DebugSymbols=false ${{env.SOLUTION_FILE_PATH}}
+
+      - name: List files in build directory
+        run: |
+          Get-ChildItem -Path . -Recurse
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: |
+            **/Release/*.dll
+            **/Release/*.exe
+          if-no-files-found: warn
